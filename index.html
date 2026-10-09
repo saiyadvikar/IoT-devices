@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sankalp ANC IoT Research Dashboard</title>
+    
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="index.css">
+    
+    <!-- Icons (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="error-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; z-index:9999; background:rgba(255,0,0,0.8); color:white; padding:20px; font-family:monospace; white-space:pre-wrap; max-height:100vh; overflow-y:auto;"></div>
+    <script>
+    window.onerror = function(msg, url, line, col, error) {
+        var overlay = document.getElementById('error-overlay');
+        overlay.style.display = 'block';
+        overlay.innerHTML += "ERROR: " + msg + "\nURL: " + url + "\nLine: " + line + ":" + col + "\nStack: " + (error && error.stack ? error.stack : '') + "\n\n";
+        return false;
+    };
+    window.addEventListener("unhandledrejection", function(e) {
+        var overlay = document.getElementById('error-overlay');
+        overlay.style.display = 'block';
+        overlay.innerHTML += "UNHANDLED PROMISE REJECTION: " + (e.reason && e.reason.stack ? e.reason.stack : e.reason) + "\n\n";
+    });
+    const originalConsoleError = console.error;
+    console.error = function() {
+        originalConsoleError.apply(console, arguments);
+        var overlay = document.getElementById('error-overlay');
+        overlay.style.display = 'block';
+        overlay.innerHTML += "CONSOLE ERROR: " + Array.from(arguments).map(arg => {
+            if (arg && arg.stack) return arg.stack;
+            if (typeof arg === 'object') return JSON.stringify(arg);
+            return String(arg);
+        }).join(" ") + "\n\n";
+    };
+    const originalConsoleWarn = console.warn;
+    console.warn = function() {
+        originalConsoleWarn.apply(console, arguments);
+        var overlay = document.getElementById('error-overlay');
+        overlay.style.display = 'block';
+        overlay.innerHTML += "CONSOLE WARNING: " + Array.from(arguments).map(arg => {
+            if (typeof arg === 'object') return JSON.stringify(arg);
+            return String(arg);
+        }).join(" ") + "\n\n";
+    };
+    </script>
+    <div class="app-container animate-fade-in">
+        
+        <!-- Top Navigation -->
+        <header class="navbar">
+            <div class="brand-section">
+                <div class="brand-logo-container">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                </div>
+                <div class="brand-info">
+                    <div class="brand-title-row">
+                        <h1>Sankalp Research</h1>
+                        <span id="last-updated-badge" class="last-updated-badge">
+                            <i class="fa-regular fa-clock"></i> Last update on --
+                        </span>
+                    </div>
+                    <span>ANC IoT Device Tracking</span>
+                </div>
+            </div>
+            
+            <div class="nav-controls">
+                <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Light/Dark Mode">
+                    <i class="fa-solid fa-sun" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Filters Section -->
+        <section class="filter-bar">
+            <div class="filter-group">
+                <span class="filter-label"><i class="fa-solid fa-filter"></i> Filters:</span>
+                
+                <!-- Month Filter -->
+                <select id="month-filter" class="filter-select">
+                    <option value="All">All Months</option>
+                </select>
+
+                <!-- Block Filter -->
+                <select id="block-filter" class="filter-select">
+                    <option value="All">All Blocks</option>
+                    <option value="Bhikangaon">Bhikangaon</option>
+                    <option value="Segaon">Segaon</option>
+                    <option value="Kasrawad">Kasrawad</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <!-- CSV Export Trigger -->
+                <button id="export-csv-btn" class="btn btn-primary">
+                    <i class="fa-solid fa-file-csv"></i> Export Weekly CSV
+                </button>
+            </div>
+        </section>
+
+        <!-- Main Dashboard Area -->
+        <main class="main-content">
+            
+            <!-- KPI Summary Cards Grid -->
+            <div class="kpi-grid">
+                <!-- Total ANC Contacts -->
+                <div class="glass-card kpi-card kpi-primary">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Total ANC Contacts</span>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fa-solid fa-clipboard-user"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="kpi-value" id="kpi-total-contacts">0</div>
+                        <div class="kpi-subtext" id="kpi-total-contacts-sub">Clinic consultations</div>
+                    </div>
+                </div>
+
+                <!-- Weight Scale Utilization Rate -->
+                <div class="glass-card kpi-card kpi-secondary">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Weight Scale Util. Rate</span>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fa-solid fa-weight-scale"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="kpi-value" id="kpi-weight-rate">0%</div>
+                        <div class="kpi-subtext" id="kpi-weight-rate-sub">0 of 0 syncs</div>
+                    </div>
+                </div>
+
+                <!-- BP Machine Utilization Rate -->
+                <div class="glass-card kpi-card kpi-primary">
+                    <div class="kpi-header">
+                        <span class="kpi-title">BP Machine Util. Rate</span>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fa-solid fa-gauge-simple-high"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="kpi-value" id="kpi-bp-rate">0%</div>
+                        <div class="kpi-subtext" id="kpi-bp-rate-sub">0 of 0 syncs</div>
+                    </div>
+                </div>
+
+                <!-- Underweight Count (<40kg) -->
+                <div class="glass-card kpi-card kpi-pink">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Underweight Mothers</span>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fa-solid fa-weight-scale"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="kpi-value" id="kpi-underweight">0</div>
+                        <div class="kpi-subtext">Weight &lt; 40 kg</div>
+                    </div>
+                </div>
+
+                <!-- Pregnancy Induced Hypertension (PIH) -->
+                <div class="glass-card kpi-card kpi-warning">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Hypertension (PIH)</span>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fa-solid fa-gauge-simple-high"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="kpi-value" id="kpi-pih">0</div>
+                        <div class="kpi-subtext">BP &ge; 140 / 90 mmHg</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 1: Monthly Utilization Rate Trend & Block-wise IoT Utilization Rate -->
+            <div class="dashboard-row equal-split">
+                <!-- Monthly Utilization Rate Trend -->
+                <div class="glass-card">
+                    <div class="card-header-container">
+                        <h3 class="card-title"><i class="fa-solid fa-chart-line"></i> Monthly Utilization Rate Trend (%)</h3>
+                        <button id="download-monthly-trend-btn" class="btn btn-outline btn-sm" title="Download Chart">
+                            <i class="fa-solid fa-download"></i> Download Chart
+                        </button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthly-utilization-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Block-wise IoT Utilization Rate -->
+                <div class="glass-card">
+                    <div class="card-header-container">
+                        <h3 class="card-title"><i class="fa-solid fa-chart-column"></i> Block-wise IoT Device Utilization Rate (%)</h3>
+                        <button id="download-utilization-chart-btn" class="btn btn-outline btn-sm" title="Download Chart">
+                            <i class="fa-solid fa-download"></i> Download Chart
+                        </button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="block-utilization-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 2: Block-wise Clinic Sessions & Block Risk Breakdown -->
+            <div class="dashboard-row equal-split">
+                <!-- Block-wise Clinic Sessions -->
+                <div class="glass-card">
+                    <div class="card-header-container">
+                        <h3 class="card-title"><i class="fa-solid fa-chart-pie"></i> Block-wise Clinic Sessions</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="block-pie-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Block Risk Breakdown -->
+                <div class="glass-card">
+                    <div class="card-header-container">
+                        <h3 class="card-title"><i class="fa-solid fa-chart-column"></i> Block Risk Breakdown</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="block-risks-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Row 1: Subcentre Leaderboard -->
+            <div class="dashboard-row full-width">
+                <div class="glass-card">
+                    <div class="card-header-container">
+                        <h3 class="card-title"><i class="fa-solid fa-ranking-star"></i> Subcentre (SHC) Performance & Leaderboard</h3>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <div class="search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" id="subcentre-search" class="search-input" placeholder="Search subcentre...">
+                            </div>
+                            <button id="download-subcentre-btn" class="btn btn-outline">
+                                <i class="fa-solid fa-file-excel"></i> Download Excel
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="dashboard-table" id="subcentres-table">
+                            <thead>
+                                <tr>
+                                    <th>Block</th>
+                                    <th>Subcentre Name</th>
+                                    <th>ANM Name</th>
+                                    <th>Total Contacts</th>
+                                    <th>Weight Syncs</th>
+                                    <th>Weight Util. %</th>
+                                    <th>BP Syncs</th>
+                                    <th>BP Util. %</th>
+                                    <th>PIH Cases</th>
+                                    <th>Underweight</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subcentres-table-body">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Row 2: Weekly Variables Aggregation (CSV format) -->
+            <div class="dashboard-row full-width">
+                <div class="glass-card">
+                    <div class="card-header-container">
+                        <h3 class="card-title"><i class="fa-solid fa-table-list"></i> Weekly Reporting Table</h3>
+                        <button id="download-weekly-btn" class="btn btn-outline">
+                            <i class="fa-solid fa-file-excel"></i> Download Excel
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="dashboard-table" id="weekly-reporting-table">
+                            <thead>
+                                <tr>
+                                    <th>Week No.</th>
+                                    <th>Date From</th>
+                                    <th>Date To</th>
+                                    <th>Total Distributed</th>
+                                    <th>Being Used</th>
+                                    <th>Total ANC Contacts</th>
+                                    <th>Weighing Scale Used</th>
+                                    <th>BP Machine Used</th>
+                                    <th>PIH Cases</th>
+                                    <th>Weight &lt; 40 kg</th>
+                                </tr>
+                            </thead>
+                            <tbody id="weekly-table-body">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+        
+        <!-- Footer -->
+        <footer style="text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border-color); background-color: var(--bg-surface);">
+            Sankalp ANC Research &copy; 2026. Captured via Bluetooth IoT Sensors & Data Collection Tools.
+        </footer>
+    </div>
+
+    <!-- Subcentre Detail Modal -->
+    <div class="modal-overlay" id="detail-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close-btn"><i class="fa-solid fa-xmark"></i></button>
+            <h2 id="modal-title" style="margin-bottom: 0.5rem; font-family: var(--font-heading); font-weight: 700; color: var(--text-primary);">Subcentre Details</h2>
+            <div id="modal-subtitle" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; font-weight: 600; text-transform: uppercase;">Block: Segaon</div>
+            
+            <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 1.5rem;">
+                <div class="glass-card" style="padding: 1rem; text-align: center;">
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600;">Total Checkups</div>
+                    <div class="kpi-value" id="modal-kpi-contacts" style="font-size: 1.5rem; margin-bottom: 0;">0</div>
+                </div>
+                <div class="glass-card" style="padding: 1rem; text-align: center;">
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600;">IoT Util. Rate</div>
+                    <div class="kpi-value" id="modal-kpi-iot-rate" style="font-size: 1.5rem; margin-bottom: 0; color: var(--color-secondary);">0%</div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 0.75rem; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">Risk Occurrences</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.85rem;">
+                    <span>Pregnancy Induced Hypertension (PIH):</span>
+                    <span id="modal-risk-pih" class="badge badge-warning">0 cases</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.85rem;">
+                    <span>Underweight (Weight &lt; 40 kg):</span>
+                    <span id="modal-risk-underweight" class="badge badge-pink">0 cases</span>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 0.75rem; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">Assigned ANMs</h3>
+            <div id="modal-anms-list" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Dependencies -->
+    <!-- Load Chart.js locally for offline support -->
+    <script src="chart.js"></script>
+    <script src="exceljs.min.js"></script>
+    
+    <!-- Load Data first, then Main script -->
+    <script src="dashboard_data.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
