@@ -558,9 +558,8 @@ except PermissionError:
     print(f"\n[WARNING] Could not update Weekly format Excel file because it is currently open in Excel: {weekly_format_path}")
     print("Please close Excel and run the compiler again to update this file!")
 
-# 5. Generate Standalone Dashboard (index.html and Sankalp_Dashboard_Sharable.html)
+# 5. Generate Standalone Dashboard (index.html)
 standalone_html_path = os.path.join(script_dir, "index.html")
-sharable_html_path = os.path.join(script_dir, "Sankalp_Dashboard_Sharable.html")
 
 # Download exceljs.min.js if not present
 exceljs_path = os.path.join(script_dir, "exceljs.min.js")
@@ -580,7 +579,12 @@ if os.path.exists(exceljs_path):
 dashboard_js_content = open(os.path.join(script_dir, "dashboard.js"), "r", encoding="utf-8").read()
 data_js_str = f"const dashboardData = {json.dumps(data_out)};"
 
-with open(os.path.join(script_dir, "index.html"), "r", encoding="utf-8") as f:
+# Read from clean template.html (or fallback to index.html if template.html missing)
+template_path = os.path.join(script_dir, "template.html")
+if not os.path.exists(template_path):
+    template_path = standalone_html_path
+
+with open(template_path, "r", encoding="utf-8") as f:
     html_template = f.read()
 
 # Replace external CSS link with inline style tag
@@ -613,12 +617,8 @@ html_template = html_template.replace(
 with open(standalone_html_path, "w", encoding="utf-8") as f:
     f.write(html_template)
 
-with open(sharable_html_path, "w", encoding="utf-8") as f:
-    f.write(html_template)
-
 print(f"\nSuccessfully generated Standalone HTML Dashboard:")
 print(f" - Saved to: {standalone_html_path}")
-print(f" - Also saved to: {sharable_html_path}")
 
 # 6. Generate HRP Line List Excel File
 hrp_excel_path = os.path.join(script_dir, "HRP_Line_List.xlsx")
