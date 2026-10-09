@@ -4,6 +4,7 @@ import os
 import glob
 import re
 import datetime
+import subprocess
 
 # Use script's directory dynamically
 script_dir = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
@@ -557,7 +558,8 @@ except PermissionError:
     print(f"\n[WARNING] Could not update Weekly format Excel file because it is currently open in Excel: {weekly_format_path}")
     print("Please close Excel and run the compiler again to update this file!")
 
-# 5. Generate Standalone Sharable HTML Dashboard
+# 5. Generate Standalone Dashboard (index.html and Sankalp_Dashboard_Sharable.html)
+standalone_html_path = os.path.join(script_dir, "index.html")
 sharable_html_path = os.path.join(script_dir, "Sankalp_Dashboard_Sharable.html")
 
 # Download exceljs.min.js if not present
@@ -608,11 +610,15 @@ html_template = html_template.replace(
     f'<script>\n{dashboard_js_content}\n</script>'
 )
 
+with open(standalone_html_path, "w", encoding="utf-8") as f:
+    f.write(html_template)
+
 with open(sharable_html_path, "w", encoding="utf-8") as f:
     f.write(html_template)
 
-print(f"\nSuccessfully generated Sharable Standalone HTML Dashboard:")
-print(f" - Saved to: {sharable_html_path}")
+print(f"\nSuccessfully generated Standalone HTML Dashboard:")
+print(f" - Saved to: {standalone_html_path}")
+print(f" - Also saved to: {sharable_html_path}")
 
 # 6. Generate HRP Line List Excel File
 hrp_excel_path = os.path.join(script_dir, "HRP_Line_List.xlsx")
@@ -686,6 +692,43 @@ try:
 except PermissionError:
     print(f"\n[WARNING] Could not update HRP Line List Excel file because it is currently open in Excel: {hrp_excel_path}")
     print("Please close Excel and run the compiler again to update this file!")
+
+# 7. Automatically commit and push updated project files to GitHub
+print("\n--- Synchronizing updates with GitHub repository ---")
+try:
+    # Check git status first
+    status_proc = subprocess.run(["git", "status", "--porcelain"], cwd=script_dir, capture_output=True, text=True)
+    if status_proc.returncode == 0:
+        if not status_proc.stdout.strip():
+            print("Working tree clean, no file changes to commit to GitHub.")
+        else:
+            print("Detected modified project files. Staging and committing...")
+            subprocess.run(["git", "add", "."], cwd=script_dir, check=True)
+            commit_msg = f"Auto-update dashboard data ({last_updated_str})"
+            commit_proc = subprocess.run(["git", "commit", "-m", commit_msg], cwd=script_dir, capture_output=True, text=True)
+            if commit_proc.returncode == 0:
+                print(f"Committed changes: '{commit_msg}'")
+                print("Pushing to GitHub remote (origin)...")
+                push_proc = subprocess.run(["git", "push", "origin", "main"], cwd=script_dir, capture_output=True, text=True)
+                if push_proc.returncode == 0:
+                    print("Successfully pushed latest updates to GitHub repository!")
+                    if push_proc.stdout.strip():
+                        print(push_proc.stdout.strip())
+                else:
+                    # Try fallback without specifying branch if main doesn't match default
+                    push_proc2 = subprocess.run(["git", "push"], cwd=script_dir, capture_output=True, text=True)
+                    if push_proc2.returncode == 0:
+                        print("Successfully pushed latest updates to GitHub repository!")
+                    else:
+                        print(f"[WARNING] Git push failed:\n{push_proc.stderr or push_proc2.stderr}")
+            else:
+                print(f"[WARNING] Git commit failed:\n{commit_proc.stderr}")
+    else:
+        print(f"[WARNING] Git status check failed:\n{status_proc.stderr}")
+except FileNotFoundError:
+    print("[WARNING] Git is not installed or not available in PATH. Skipping git push.")
+except Exception as e:
+    print(f"[WARNING] Unexpected error while pushing to GitHub: {e}")
 
 
 
