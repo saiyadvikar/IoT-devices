@@ -93,6 +93,31 @@ for sheet in xl_dist.sheet_names:
 subcentre_windows = {} # subcentre -> {"start": dt, "end": dt, "allowed_anms": [...], "assigned_anm": "..."}
 program_changes = []
 
+# Map user name from distribution list to their original subcentre
+user_original_subcentre = {}
+for sheet in xl_dist.sheet_names:
+    if "Change" in sheet or "Program" in sheet:
+        continue
+    df_dist = pd.read_excel(dist_path, sheet_name=sheet, header=None)
+    header_idx = None
+    for idx, row in df_dist.iterrows():
+        row_str = [str(x).lower() for x in row]
+        if any('place of posting' in x or 'posting' in x for x in row_str):
+            header_idx = idx
+            break
+    if header_idx is not None:
+        df_dist.columns = [str(x).strip() for x in df_dist.iloc[header_idx]]
+        df_dist = df_dist.iloc[header_idx+1:]
+        posting_col = [c for c in df_dist.columns if 'Place of Posting' in c or 'Place' in c or 'Posting' in c][0]
+        user_cols = [c for c in df_dist.columns if 'User Name' in c or 'Name' in c or 'ANM' in c]
+        if user_cols:
+            u_col = user_cols[0]
+            for _, r in df_dist.iterrows():
+                sub_name = map_subcentre(r[posting_col])
+                u_name = str(r[u_col]).strip()
+                if u_name and u_name.lower() != 'nan':
+                    user_original_subcentre[u_name.lower()] = sub_name
+
 for sheet in xl_dist.sheet_names:
     if "Change" in sheet or "Program" in sheet:
         df_prog = pd.read_excel(dist_path, sheet_name=sheet)
@@ -143,17 +168,21 @@ for sheet in xl_dist.sheet_names:
                     "allowed_anms": [new_user.lower()],
                     "assigned_anm": new_user
                 }
-                # Also, if old user was previously at another subcentre (e.g. Anita Sharma at Magarkhedi)
+                # If old user had an original subcentre in training list (e.g. Anita Sharma at Magarkhedi)
                 if old_user:
-                    # Look for old subcentre in equipped_subcentres
-                    for ex_sub, ex_blk in list(equipped_subcentres.items()):
-                        if ex_sub != sub and ex_blk.lower() == blk.lower():
-                            if ex_sub not in subcentre_windows:
-                                subcentre_windows[ex_sub] = {
-                                    "end_date": change_dt - pd.Timedelta(days=1),
-                                    "allowed_anms": [old_user.lower()],
-                                    "assigned_anm": old_user
-                                }
+                    old_sub = user_original_subcentre.get(old_user.lower())
+                    if not old_sub:
+                        # Fallback search by name substring
+                        for u_key, s_val in user_original_subcentre.items():
+                            if old_user.lower() in u_key or u_key in old_user.lower():
+                                old_sub = s_val
+                                break
+                    if old_sub and old_sub != sub:
+                        subcentre_windows[old_sub] = {
+                            "end_date": change_dt - pd.Timedelta(days=1),
+                            "allowed_anms": [old_user.lower()],
+                            "assigned_anm": old_user
+                        }
 
 print("Loaded Block Distribution Dates:")
 for b, d in block_dates.items():
