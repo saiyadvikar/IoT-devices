@@ -43,7 +43,7 @@ def map_subcentre(name):
 
 # Parse training sheets
 for sheet in xl_dist.sheet_names:
-    if "Change" in sheet:
+    if "Change" in sheet or "Program" in sheet:
         continue
     df_dist = pd.read_excel(dist_path, sheet_name=sheet, header=None)
     
@@ -89,11 +89,80 @@ for sheet in xl_dist.sheet_names:
             if include:
                 equipped_subcentres[sub] = block_name
 
+# C. Parse Program Change sheet dynamically
+subcentre_windows = {} # subcentre -> {"start": dt, "end": dt, "allowed_anms": [...], "assigned_anm": "..."}
+program_changes = []
+
+for sheet in xl_dist.sheet_names:
+    if "Change" in sheet or "Program" in sheet:
+        df_prog = pd.read_excel(dist_path, sheet_name=sheet)
+        # Normalize column names
+        df_prog.columns = [str(c).strip() for c in df_prog.columns]
+        
+        posting_col = [c for c in df_prog.columns if 'Posting' in c or 'Place' in c][0]
+        block_col = [c for c in df_prog.columns if 'Block' in c][0]
+        old_user_col = [c for c in df_prog.columns if 'Old User' in c][0]
+        new_user_col = [c for c in df_prog.columns if 'New User' in c][0]
+        date_change_col = [c for c in df_prog.columns if 'Date of Changed' in c or 'Changed User' in c][0]
+        withdrawn_col = [c for c in df_prog.columns if 'Withdrawn' in c][0]
+        
+        for idx, row in df_prog.iterrows():
+            raw_place = str(row[posting_col]).strip()
+            if not raw_place or raw_place.lower() == 'nan':
+                continue
+            sub = map_subcentre(raw_place)
+            blk = str(row[block_col]).strip()
+            old_user = str(row[old_user_col]).strip() if pd.notnull(row[old_user_col]) else None
+            new_user = str(row[new_user_col]).strip() if pd.notnull(row[new_user_col]) else None
+            change_dt = pd.to_datetime(row[date_change_col]) if pd.notnull(row[date_change_col]) else None
+            withdrawn_dt = pd.to_datetime(row[withdrawn_col]) if pd.notnull(row[withdrawn_col]) else None
+            
+            program_changes.append({
+                "subcentre": sub,
+                "block": blk,
+                "old_user": old_user,
+                "new_user": new_user,
+                "change_date": change_dt,
+                "withdrawn_date": withdrawn_dt
+            })
+            
+            # Ensure subcentre is in equipped_subcentres
+            equipped_subcentres[sub] = blk
+            
+            if withdrawn_dt:
+                # Device withdrawn from this subcentre
+                subcentre_windows[sub] = {
+                    "end_date": withdrawn_dt,
+                    "allowed_anms": [old_user.lower()] if old_user else None,
+                    "assigned_anm": old_user
+                }
+            elif change_dt and new_user:
+                # Subcentre transitioned or newly active under new user
+                subcentre_windows[sub] = {
+                    "start_date": change_dt,
+                    "allowed_anms": [new_user.lower()],
+                    "assigned_anm": new_user
+                }
+                # Also, if old user was previously at another subcentre (e.g. Anita Sharma at Magarkhedi)
+                if old_user:
+                    # Look for old subcentre in equipped_subcentres
+                    for ex_sub, ex_blk in list(equipped_subcentres.items()):
+                        if ex_sub != sub and ex_blk.lower() == blk.lower():
+                            if ex_sub not in subcentre_windows:
+                                subcentre_windows[ex_sub] = {
+                                    "end_date": change_dt - pd.Timedelta(days=1),
+                                    "allowed_anms": [old_user.lower()],
+                                    "assigned_anm": old_user
+                                }
+
 print("Loaded Block Distribution Dates:")
 for b, d in block_dates.items():
     print(f"  {b}: {d.strftime('%Y-%m-%d')}")
 
-print(f"\nLoaded {len(equipped_subcentres)} equipped subcentres from training list.")
+print(f"\nLoaded {len(equipped_subcentres)} equipped subcentres from training and program change lists.")
+print("Program Changes and Subcentre Active Windows:")
+for sub, win in subcentre_windows.items():
+    print(f"  {sub}: {win}")
 
 # 2. Search for and load the IoT report
 excel_files = glob.glob(os.path.join(script_dir, "Anmol_IOT_Report_*.xlsx"))
@@ -162,6 +231,21 @@ for idx, row in df_iot.iterrows():
     if dist_date and row['ANC Date'] < dist_date:
         excluded_iot_count += 1
         continue
+        
+    # Check programmatic active window for subcentre
+    if sub_facility in subcentre_windows:
+        win = subcentre_windows[sub_facility]
+        if "start_date" in win and win["start_date"] and row['ANC Date'] < win["start_date"]:
+            excluded_iot_count += 1
+            continue
+        if "end_date" in win and win["end_date"] and row['ANC Date'] > win["end_date"]:
+            excluded_iot_count += 1
+            continue
+        if win.get("allowed_anms"):
+            user_lower = user_name_val.lower()
+            if not any(anm in user_lower for anm in win["allowed_anms"]):
+                excluded_iot_count += 1
+                continue
     
     weight_iot = row['Weight by IOT']
     bp_sys_iot = row['BP_Systolic by IOT']
@@ -355,6 +439,16 @@ subcentre_anm_names = {
     'SHC Temala New': ['imla nargawe', 'imla nargave']
 }
 
+# Dynamically ensure all program change subcentres have allowed ANMs
+for sub, win in subcentre_windows.items():
+    if win.get("allowed_anms"):
+        if sub not in subcentre_anm_names:
+            subcentre_anm_names[sub] = list(win["allowed_anms"])
+        else:
+            for anm in win["allowed_anms"]:
+                if anm not in subcentre_anm_names[sub]:
+                    subcentre_anm_names[sub].append(anm)
+
 # 3. Load the 3 overall ANC line list files to count overall checkups
 anc_files = glob.glob(os.path.join(anc_dir, "ANC_Line_list_Report_*.xlsx"))
 
@@ -402,6 +496,17 @@ for path in anc_files:
                         v_date = pd.to_datetime(val)
                         dist_date = block_dates.get(block_name)
                         if dist_date and v_date >= dist_date and v_date <= pd.to_datetime(weeks[-1]["end"]):
+                            # Check programmatic active window for subcentre
+                            if subcentre in subcentre_windows:
+                                win = subcentre_windows[subcentre]
+                                if "start_date" in win and win["start_date"] and v_date < win["start_date"]:
+                                    continue
+                                if "end_date" in win and win["end_date"] and v_date > win["end_date"]:
+                                    continue
+                                if win.get("allowed_anms"):
+                                    if not any(n in staff_name for n in win["allowed_anms"]):
+                                        continue
+
                             overall_visits.append({
                                 "subcentre": subcentre,
                                 "block": block_name,
@@ -463,7 +568,12 @@ subcentre_anm_assigned = {
     'SHC Temala New': 'Imla Nargave'
 }
 
-# Pre-populate subcentres array for the frontend with the 46 standard subcentres
+# Update assigned ANMs from program changes dynamically
+for sub, win in subcentre_windows.items():
+    if win.get("assigned_anm"):
+        subcentre_anm_assigned[sub] = win["assigned_anm"]
+
+# Pre-populate subcentres array for the frontend with the standard equipped subcentres
 subcentres_list = []
 for s, b in equipped_subcentres.items():
     # Find facility name and user name from IoT records if possible
