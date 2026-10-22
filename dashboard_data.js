@@ -1,5 +1,5 @@
 const dashboardData = {
-  "generated_at": "2026-10-22T21:38:59.258644",
+  "generated_at": "2026-10-22T22:15:26.751529",
   "last_updated_date": "22-10-2026",
   "records": [
     {
@@ -52704,105 +52704,105 @@ const dashboardData = {
       "start": "2026-07-09",
       "end": "2026-07-15",
       "label": "W10 (Jul 09 - Jul 15)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 11,
       "start": "2026-07-16",
       "end": "2026-07-22",
       "label": "W11 (Jul 16 - Jul 22)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 12,
       "start": "2026-07-23",
       "end": "2026-07-29",
       "label": "W12 (Jul 23 - Jul 29)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 13,
       "start": "2026-07-30",
       "end": "2026-08-05",
       "label": "W13 (Jul 30 - Aug 05)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 14,
       "start": "2026-08-06",
       "end": "2026-08-12",
       "label": "W14 (Aug 06 - Aug 12)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 15,
       "start": "2026-08-13",
       "end": "2026-08-19",
       "label": "W15 (Aug 13 - Aug 19)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 16,
       "start": "2026-08-20",
       "end": "2026-08-26",
       "label": "W16 (Aug 20 - Aug 26)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 17,
       "start": "2026-08-27",
       "end": "2026-09-02",
       "label": "W17 (Aug 27 - Sep 02)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 18,
       "start": "2026-09-03",
       "end": "2026-09-09",
       "label": "W18 (Sep 03 - Sep 09)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 19,
       "start": "2026-09-10",
       "end": "2026-09-16",
       "label": "W19 (Sep 10 - Sep 16)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 20,
       "start": "2026-09-17",
       "end": "2026-09-23",
       "label": "W20 (Sep 17 - Sep 23)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 21,
       "start": "2026-09-24",
       "end": "2026-09-30",
       "label": "W21 (Sep 24 - Sep 30)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 22,
       "start": "2026-10-01",
       "end": "2026-10-07",
       "label": "W22 (Oct 01 - Oct 07)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 23,
       "start": "2026-10-08",
       "end": "2026-10-14",
       "label": "W23 (Oct 08 - Oct 14)",
-      "devices": 47
+      "devices": 46
     },
     {
       "no": 24,
       "start": "2026-10-15",
       "end": "2026-10-21",
       "label": "W24 (Oct 15 - Oct 21)",
-      "devices": 47
+      "devices": 46
     }
   ],
   "subcentres": [
@@ -52810,7 +52810,10 @@ const dashboardData = {
       "name": "SHC Andad",
       "block": "Bhikangaon",
       "facility": "PHC Andad",
-      "anm_name": "Reena mujalde"
+      "anm_name": "Reena mujalde",
+      "active_end": "2026-07-11",
+      "is_withdrawn": true,
+      "withdrawn_date": "2026-07-11"
     },
     {
       "name": "SHC Anjangaon",
@@ -52966,13 +52969,15 @@ const dashboardData = {
       "name": "SHC Lohari",
       "block": "Kasrawad",
       "facility": "SHC",
-      "anm_name": "Moni Bandod"
+      "anm_name": "Moni Bandod",
+      "active_start": "2026-10-10"
     },
     {
       "name": "SHC Magarkhedi",
       "block": "Kasrawad",
       "facility": "PHC MAGARKHEDI",
-      "anm_name": "Anita sharma"
+      "anm_name": "Anita sharma",
+      "active_end": "2026-10-02"
     },
     {
       "name": "SHC Maltar",
@@ -53086,7 +53091,8 @@ const dashboardData = {
       "name": "SHC Regwa",
       "block": "Kasrawad",
       "facility": "SHC",
-      "anm_name": "NIMIT VERMA"
+      "anm_name": "NIMIT VERMA",
+      "active_start": "2026-10-03"
     }
   ],
   "overall_visits": [

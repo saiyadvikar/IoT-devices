@@ -159,7 +159,9 @@ for sheet in xl_dist.sheet_names:
                 subcentre_windows[sub] = {
                     "end_date": withdrawn_dt,
                     "allowed_anms": [old_user.lower()] if old_user else None,
-                    "assigned_anm": old_user
+                    "assigned_anm": old_user,
+                    "is_withdrawn": True,
+                    "withdrawn_date": withdrawn_dt
                 }
             elif change_dt and new_user:
                 # Subcentre transitioned or newly active under new user
@@ -407,6 +409,12 @@ while current_start <= max_date:
     kasr_date = block_dates.get("Kasrawad", pd.to_datetime("2026-06-24"))
     if w_end_dt >= kasr_date:
         devices += 17
+
+    # Dynamically subtract devices withdrawn prior to or during this week
+    for chg in program_changes:
+        w_date = chg.get("withdrawn_date")
+        if w_date and pd.notnull(w_date) and w_end_dt >= w_date:
+            devices -= 1
         
     weeks.append({
         "no": week_idx,
@@ -614,12 +622,25 @@ for s, b in equipped_subcentres.items():
             if not anm and r.get("user_name"):
                 anm = r["user_name"]
             break
-    subcentres_list.append({
+            
+    # Include lifecycle window metadata if present
+    sub_meta = {
         "name": s,
         "block": b,
         "facility": fac,
         "anm_name": anm
-    })
+    }
+    if s in subcentre_windows:
+        win = subcentre_windows[s]
+        if "start_date" in win and win["start_date"]:
+            sub_meta["active_start"] = win["start_date"].strftime('%Y-%m-%d')
+        if "end_date" in win and win["end_date"]:
+            sub_meta["active_end"] = win["end_date"].strftime('%Y-%m-%d')
+        if win.get("is_withdrawn"):
+            sub_meta["is_withdrawn"] = True
+            sub_meta["withdrawn_date"] = win["withdrawn_date"].strftime('%Y-%m-%d')
+            
+    subcentres_list.append(sub_meta)
 
 # Write JSON data to file
 now_dt = datetime.datetime.now()

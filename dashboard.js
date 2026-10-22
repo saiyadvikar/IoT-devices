@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Chart instances storage
     let charts = {
         blockPie: null,
-        weeklyRisks: null,
+        monthlyUtilization: null,
         blockRisks: null,
         blockUtilization: null
     };
@@ -252,24 +252,55 @@ document.addEventListener("DOMContentLoaded", () => {
         // 3. Compute Subcentres Summary based on selection
         const subcentresMap = {};
         
+        // Month name to index mapping helper
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        
         // Initialize subcentres from equipped list
         (dashboardData.subcentres || []).forEach(s => {
             const matchesBlock = currentBlock === "All" || s.block === currentBlock;
-            if (matchesBlock) {
-                subcentresMap[s.name] = {
-                    name: s.name,
-                    block: s.block,
-                    facility: s.facility,
-                    anm_name: s.anm_name || "",
-                    contacts: 0,
-                    iot_contacts: 0,
-                    weight_contacts: 0,
-                    bp_contacts: 0,
-                    pih: 0,
-                    underweight: 0,
-                    anms: new Set()
-                };
+            if (!matchesBlock) return;
+
+            // Check dynamic active presence for filtered month
+            if (currentMonth !== "All") {
+                const targetMonthIndex = monthNames.indexOf(currentMonth); // 0-based
+                
+                // If subcentre has a withdrawal/end date, ensure it was active during or after this month
+                if (s.active_end) {
+                    const endParts = s.active_end.split("-");
+                    const endYear = parseInt(endParts[0], 10);
+                    const endMonthIndex = parseInt(endParts[1], 10) - 1; // 0-based
+                    // Assuming current project year 2026
+                    if (endYear === 2026 && targetMonthIndex > endMonthIndex) {
+                        // The subcentre was withdrawn or ended before this month
+                        return;
+                    }
+                }
+                
+                // If subcentre has a start date, ensure it was active during or before this month
+                if (s.active_start) {
+                    const startParts = s.active_start.split("-");
+                    const startYear = parseInt(startParts[0], 10);
+                    const startMonthIndex = parseInt(startParts[1], 10) - 1; // 0-based
+                    if (startYear === 2026 && targetMonthIndex < startMonthIndex) {
+                        // The subcentre had not yet started by this month
+                        return;
+                    }
+                }
             }
+
+            subcentresMap[s.name] = {
+                name: s.name,
+                block: s.block,
+                facility: s.facility,
+                anm_name: s.anm_name || "",
+                contacts: 0,
+                iot_contacts: 0,
+                weight_contacts: 0,
+                bp_contacts: 0,
+                pih: 0,
+                underweight: 0,
+                anms: new Set()
+            };
         });
 
         // Fill overall contacts from filtered overall visits
