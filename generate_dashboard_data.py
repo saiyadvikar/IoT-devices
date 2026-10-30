@@ -164,27 +164,39 @@ for sheet in xl_dist.sheet_names:
                     "withdrawn_date": withdrawn_dt
                 }
             elif change_dt and new_user:
-                # Subcentre transitioned or newly active under new user
-                subcentre_windows[sub] = {
-                    "start_date": change_dt,
-                    "allowed_anms": [new_user.lower()],
-                    "assigned_anm": new_user
-                }
-                # If old user had an original subcentre in training list (e.g. Anita Sharma at Magarkhedi)
-                if old_user:
-                    old_sub = user_original_subcentre.get(old_user.lower())
-                    if not old_sub:
-                        # Fallback search by name substring
-                        for u_key, s_val in user_original_subcentre.items():
-                            if old_user.lower() in u_key or u_key in old_user.lower():
-                                old_sub = s_val
-                                break
-                    if old_sub and old_sub != sub:
-                        subcentre_windows[old_sub] = {
-                            "end_date": change_dt - pd.Timedelta(days=1),
-                            "allowed_anms": [old_user.lower()],
-                            "assigned_anm": old_user
-                        }
+                # If old user was at the SAME subcentre (e.g. Ragini Andelkar -> Moni Bandod at SHC Lohari),
+                # the subcentre has been active since the block start date.
+                # Prior to change_date, old_user was active; on or after change_date, new_user is active.
+                if old_user and user_original_subcentre.get(old_user.lower()) == sub:
+                    subcentre_windows[sub] = {
+                        "allowed_anms": [old_user.lower(), new_user.lower()],
+                        "transition_date": change_dt,
+                        "old_user": old_user.lower(),
+                        "new_user": new_user.lower(),
+                        "assigned_anm": new_user
+                    }
+                else:
+                    # Subcentre transitioned or newly active under new user (e.g. SHC Regwa)
+                    subcentre_windows[sub] = {
+                        "start_date": change_dt,
+                        "allowed_anms": [new_user.lower()],
+                        "assigned_anm": new_user
+                    }
+                    # If old user had an original subcentre in training list (e.g. Anita Sharma at Magarkhedi)
+                    if old_user:
+                        old_sub = user_original_subcentre.get(old_user.lower())
+                        if not old_sub:
+                            # Fallback search by name substring
+                            for u_key, s_val in user_original_subcentre.items():
+                                if old_user.lower() in u_key or u_key in old_user.lower():
+                                    old_sub = s_val
+                                    break
+                        if old_sub and old_sub != sub:
+                            subcentre_windows[old_sub] = {
+                                "end_date": change_dt - pd.Timedelta(days=1),
+                                "allowed_anms": [old_user.lower()],
+                                "assigned_anm": old_user
+                            }
 
 print("Loaded Block Distribution Dates:")
 for b, d in block_dates.items():
@@ -243,6 +255,11 @@ for idx, row in df_iot.iterrows():
     if 'anita' in user_name_val.lower() and 'chouhan' in user_name_val.lower() and sub_facility == 'SHC Jamothi New':
         sub_facility = 'SHC Khamkheda'
 
+    # Kasrawad Block fix: Durga Prajapat is assigned to SHC Bhoinda,
+    # but her IoT entries were tagged under SHC Chichli.
+    if 'durga' in user_name_val.lower() and 'prajapat' in user_name_val.lower() and sub_facility == 'SHC Chichli':
+        sub_facility = 'SHC Bhoinda'
+
     # Talakpura fix: only count ANM contacts, do not count CHO
     if sub_facility == 'SHC Talakpura':
         role_val = str(row.get('Role Name', '')).lower()
@@ -272,7 +289,17 @@ for idx, row in df_iot.iterrows():
         if "end_date" in win and win["end_date"] and row['ANC Date'] > win["end_date"]:
             excluded_iot_count += 1
             continue
-        if win.get("allowed_anms"):
+        if "transition_date" in win and win["transition_date"]:
+            user_lower = user_name_val.lower()
+            if row['ANC Date'] < win["transition_date"]:
+                if win.get("old_user") and win["old_user"] not in user_lower and win.get("new_user") not in user_lower:
+                    excluded_iot_count += 1
+                    continue
+            else:
+                if win.get("new_user") and win["new_user"] not in user_lower:
+                    excluded_iot_count += 1
+                    continue
+        elif win.get("allowed_anms"):
             user_lower = user_name_val.lower()
             if not any(anm in user_lower for anm in win["allowed_anms"]):
                 excluded_iot_count += 1
@@ -540,7 +567,14 @@ for path in anc_files:
                                     continue
                                 if "end_date" in win and win["end_date"] and v_date > win["end_date"]:
                                     continue
-                                if win.get("allowed_anms"):
+                                if "transition_date" in win and win["transition_date"]:
+                                    if v_date < win["transition_date"]:
+                                        if win.get("old_user") and win["old_user"] not in staff_name and win.get("new_user") not in staff_name:
+                                            continue
+                                    else:
+                                        if win.get("new_user") and win["new_user"] not in staff_name:
+                                            continue
+                                elif win.get("allowed_anms"):
                                     if not any(n in staff_name for n in win["allowed_anms"]):
                                         continue
 

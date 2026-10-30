@@ -468,6 +468,40 @@ button, input, select {
     border: 1px solid var(--border-color);
 }
 
+/* Fixed viewport height showing top 10 rows with vertical scroll & sticky header */
+.table-scroll-container {
+    max-height: 480px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) var(--border-color);
+}
+
+.table-scroll-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+    background: var(--bg-surface);
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+    background-color: var(--color-primary);
+    border-radius: var(--radius-full);
+}
+
+.table-scroll-container thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background-color: var(--bg-card);
+    box-shadow: 0 1px 0 var(--border-color);
+}
+
 .dashboard-table {
     width: 100%;
     border-collapse: collapse;
