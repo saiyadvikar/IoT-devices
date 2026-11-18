@@ -1,6 +1,6 @@
 const dashboardData = {
-  "generated_at": "2026-11-14T09:10:59.210909",
-  "last_updated_date": "14-11-2026",
+  "generated_at": "2026-11-18T09:57:30.910133",
+  "last_updated_date": "18-11-2026",
   "records": [
     {
       "id": 1,
@@ -68651,7 +68651,11 @@ const dashboardData = {
       "anm_name": "Reena mujalde",
       "active_end": "2026-07-11",
       "is_withdrawn": true,
-      "withdrawn_date": "2026-07-11"
+      "withdrawn_date": "2026-07-11",
+      "status_type": "withdrawn",
+      "event_date": "2026-07-11",
+      "event_label": "Withdrawn on 11-07-2026",
+      "highlight_red": true
     },
     {
       "name": "SHC Anjangaon",
@@ -68807,14 +68811,22 @@ const dashboardData = {
       "name": "SHC Lohari",
       "block": "Kasrawad",
       "facility": "CHC Kasrawad",
-      "anm_name": "Moni Bandod"
+      "anm_name": "Moni Bandod",
+      "status_type": "transferred",
+      "event_date": "2026-11-18",
+      "event_label": "Transferred on 18-11-2026",
+      "highlight_red": true
     },
     {
       "name": "SHC Magarkhedi",
       "block": "Kasrawad",
       "facility": "PHC MAGARKHEDI",
       "anm_name": "Anita sharma",
-      "active_end": "2026-10-02"
+      "active_end": "2026-10-02",
+      "status_type": "transferred",
+      "event_date": "2026-10-03",
+      "event_label": "Transferred on 03-10-2026",
+      "highlight_red": true
     },
     {
       "name": "SHC Maltar",
@@ -68929,7 +68941,11 @@ const dashboardData = {
       "block": "Kasrawad",
       "facility": "PHC Satkur",
       "anm_name": "NIMIT VERMA",
-      "active_start": "2026-10-03"
+      "active_start": "2026-10-03",
+      "status_type": "transferred",
+      "event_date": "2026-10-03",
+      "event_label": "Transferred on 03-10-2026",
+      "highlight_red": true
     }
   ],
   "overall_visits": [

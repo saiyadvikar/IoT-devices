@@ -161,7 +161,11 @@ for sheet in xl_dist.sheet_names:
                     "allowed_anms": [old_user.lower()] if old_user else None,
                     "assigned_anm": old_user,
                     "is_withdrawn": True,
-                    "withdrawn_date": withdrawn_dt
+                    "withdrawn_date": withdrawn_dt,
+                    "status_type": "withdrawn",
+                    "event_date": withdrawn_dt.strftime('%Y-%m-%d'),
+                    "event_label": f"Withdrawn on {withdrawn_dt.strftime('%d-%m-%Y')}",
+                    "highlight_red": True
                 }
             elif change_dt and new_user:
                 # If old user was at the SAME subcentre (e.g. Ragini Andelkar -> Moni Bandod at SHC Lohari),
@@ -173,14 +177,22 @@ for sheet in xl_dist.sheet_names:
                         "transition_date": change_dt,
                         "old_user": old_user.lower(),
                         "new_user": new_user.lower(),
-                        "assigned_anm": new_user
+                        "assigned_anm": new_user,
+                        "status_type": "transferred",
+                        "event_date": change_dt.strftime('%Y-%m-%d'),
+                        "event_label": f"Transferred on {change_dt.strftime('%d-%m-%Y')}",
+                        "highlight_red": True
                     }
                 else:
                     # Subcentre transitioned or newly active under new user (e.g. SHC Regwa)
                     subcentre_windows[sub] = {
                         "start_date": change_dt,
                         "allowed_anms": [new_user.lower()],
-                        "assigned_anm": new_user
+                        "assigned_anm": new_user,
+                        "status_type": "transferred",
+                        "event_date": change_dt.strftime('%Y-%m-%d'),
+                        "event_label": f"Transferred on {change_dt.strftime('%d-%m-%Y')}",
+                        "highlight_red": True
                     }
                     # If old user had an original subcentre in training list (e.g. Anita Sharma at Magarkhedi)
                     if old_user:
@@ -195,7 +207,11 @@ for sheet in xl_dist.sheet_names:
                             subcentre_windows[old_sub] = {
                                 "end_date": change_dt - pd.Timedelta(days=1),
                                 "allowed_anms": [old_user.lower()],
-                                "assigned_anm": old_user
+                                "assigned_anm": old_user,
+                                "status_type": "transferred",
+                                "event_date": change_dt.strftime('%Y-%m-%d'),
+                                "event_label": f"Transferred on {change_dt.strftime('%d-%m-%Y')}",
+                                "highlight_red": True
                             }
 
 print("Loaded Block Distribution Dates:")
@@ -673,6 +689,11 @@ for s, b in equipped_subcentres.items():
         if win.get("is_withdrawn"):
             sub_meta["is_withdrawn"] = True
             sub_meta["withdrawn_date"] = win["withdrawn_date"].strftime('%Y-%m-%d')
+        if win.get("status_type"):
+            sub_meta["status_type"] = win["status_type"]
+            sub_meta["event_date"] = win["event_date"]
+            sub_meta["event_label"] = win["event_label"]
+            sub_meta["highlight_red"] = win.get("highlight_red", False)
             
     subcentres_list.append(sub_meta)
 

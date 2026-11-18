@@ -299,7 +299,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 bp_contacts: 0,
                 pih: 0,
                 underweight: 0,
-                anms: new Set()
+                anms: new Set(),
+                status_type: s.status_type || null,
+                event_date: s.event_date || null,
+                event_label: s.event_label || null,
+                highlight_red: !!s.highlight_red
             };
         });
 
@@ -475,11 +479,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
         filteredSub.forEach(s => {
             const tr = document.createElement("tr");
-            const anmName = s.display_anm || s.anm_name || (s.anms && s.anms.length > 0 ? s.anms.join(", ") : "-");
+            const rawAnm = s.display_anm || s.anm_name || (s.anms && s.anms.length > 0 ? s.anms.join(", ") : "-");
+            
+            let anmDisplayHtml = rawAnm;
+            let subcentreDisplayHtml = `<strong>${s.name}</strong>`;
+            
+            if (s.highlight_red || s.status_type) {
+                const iconClass = s.status_type === 'withdrawn' ? 'fa-ban' : 'fa-right-left';
+                const badgeClass = s.status_type === 'withdrawn' ? 'badge-danger' : 'badge-danger';
+                const label = s.event_label || (s.status_type === 'withdrawn' ? `Withdrawn on ${s.event_date}` : `Transferred on ${s.event_date}`);
+                
+                anmDisplayHtml = `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 3px;">
+                        <span style="color: var(--color-danger); font-weight: 700;">${rawAnm}</span>
+                        <span class="badge ${badgeClass}" style="font-size: 0.68rem; padding: 2px 7px; white-space: nowrap; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.4);">
+                            <i class="fa-solid ${iconClass}"></i> ${label}
+                        </span>
+                    </div>
+                `;
+                subcentreDisplayHtml = `<strong style="color: var(--color-danger);">${s.name}</strong>`;
+            }
+
             tr.innerHTML = `
                 <td style="text-align: center;"><strong>${s.block}</strong></td>
-                <td style="text-align: center;"><strong>${s.name}</strong></td>
-                <td style="text-align: center;">${anmName}</td>
+                <td style="text-align: center;">${subcentreDisplayHtml}</td>
+                <td style="text-align: center;">${anmDisplayHtml}</td>
                 <td style="text-align: center;">${s.contacts}</td>
                 <td style="text-align: center;">${s.weight_contacts}</td>
                 <td style="text-align: center;">
@@ -540,11 +564,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         if (s.anms && s.anms.length > 0) {
-            modalAnmsList.innerHTML = `<ul style="padding-left: 1.2rem; margin-top: 4px;">
+            let anmHtml = `<ul style="padding-left: 1.2rem; margin-top: 4px;">
                 ${s.anms.map(anm => `<li style="margin-bottom: 2px;">${anm}</li>`).join('')}
             </ul>`;
+            if (s.event_label) {
+                anmHtml += `<div style="margin-top: 8px;"><span class="badge badge-danger" style="font-weight: 700;"><i class="fa-solid fa-triangle-exclamation"></i> ${s.event_label}</span></div>`;
+            }
+            modalAnmsList.innerHTML = anmHtml;
         } else {
-            modalAnmsList.innerText = "No assigned ANM details found.";
+            let noneHtml = "No assigned ANM details found.";
+            if (s.event_label) {
+                noneHtml += `<div style="margin-top: 8px;"><span class="badge badge-danger" style="font-weight: 700;"><i class="fa-solid fa-triangle-exclamation"></i> ${s.event_label}</span></div>`;
+            }
+            modalAnmsList.innerHTML = noneHtml;
         }
 
         detailModal.style.display = "flex";
@@ -1101,8 +1133,11 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Add data rows
             filteredSub.forEach(s => {
-                const anmName = s.display_anm || s.anm_name || (s.anms && s.anms.length > 0 ? s.anms.join(", ") : "-");
-                worksheet.addRow({
+                let anmName = s.display_anm || s.anm_name || (s.anms && s.anms.length > 0 ? s.anms.join(", ") : "-");
+                if (s.event_label) {
+                    anmName = `${anmName} (${s.event_label})`;
+                }
+                const row = worksheet.addRow({
                     block: s.block,
                     name: s.name,
                     anm: anmName,
@@ -1114,6 +1149,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     pih: s.pih,
                     underweight: s.underweight
                 });
+                
+                if (s.highlight_red || s.status_type) {
+                    row.getCell(2).font = { color: { argb: 'FFDC2626' }, bold: true };
+                    row.getCell(3).font = { color: { argb: 'FFDC2626' }, bold: true };
+                }
             });
             
             // Style rows and apply conditional color formatting
