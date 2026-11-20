@@ -93,8 +93,11 @@ for sheet in xl_dist.sheet_names:
 subcentre_windows = {} # subcentre -> {"start": dt, "end": dt, "allowed_anms": [...], "assigned_anm": "..."}
 program_changes = []
 
-# Map user name from distribution list to their original subcentre
+# Map user name from distribution list to their original subcentre & contact info
 user_original_subcentre = {}
+base_contacts = {} # subcentre -> {"name": n, "mobile": m}
+anm_mob_lookup = {} # anm_name_lower -> (name, mobile)
+
 for sheet in xl_dist.sheet_names:
     if "Change" in sheet or "Program" in sheet:
         continue
@@ -110,13 +113,30 @@ for sheet in xl_dist.sheet_names:
         df_dist = df_dist.iloc[header_idx+1:]
         posting_col = [c for c in df_dist.columns if 'Place of Posting' in c or 'Place' in c or 'Posting' in c][0]
         user_cols = [c for c in df_dist.columns if 'User Name' in c or 'Name' in c or 'ANM' in c]
-        if user_cols:
-            u_col = user_cols[0]
-            for _, r in df_dist.iterrows():
-                sub_name = map_subcentre(r[posting_col])
-                u_name = str(r[u_col]).strip()
-                if u_name and u_name.lower() != 'nan':
-                    user_original_subcentre[u_name.lower()] = sub_name
+        mob_cols = [c for c in df_dist.columns if 'Mob' in c or 'Phone' in c]
+        rec_cols = [c for c in df_dist.columns if 'Received' in c or 'Reviced' in c or 'Device' in c]
+        
+        u_col = user_cols[0] if user_cols else None
+        m_col = mob_cols[0] if mob_cols else None
+        r_col = rec_cols[0] if rec_cols else None
+        
+        for _, r in df_dist.iterrows():
+            sub_name = map_subcentre(r[posting_col])
+            u_name = str(r[u_col]).strip() if u_col and pd.notnull(r[u_col]) else ""
+            m_val = str(r[m_col]).strip() if m_col and pd.notnull(r[m_col]) else ""
+            if m_val.endswith('.0'):
+                m_val = m_val[:-2]
+            if m_val.lower() == 'nan':
+                m_val = ""
+                
+            rec_val = str(r[r_col]).strip().upper() if r_col and pd.notnull(r[r_col]) else ""
+            include = ('YES' in rec_val) or ("Bhik" in sheet)
+            
+            if u_name and u_name.lower() != 'nan':
+                user_original_subcentre[u_name.lower()] = sub_name
+                anm_mob_lookup[u_name.lower()] = (u_name, m_val)
+                if include:
+                    base_contacts[sub_name] = {"name": u_name, "mobile": m_val}
 
 for sheet in xl_dist.sheet_names:
     if "Change" in sheet or "Program" in sheet:
@@ -130,6 +150,8 @@ for sheet in xl_dist.sheet_names:
         new_user_col = [c for c in df_prog.columns if 'New User' in c][0]
         date_change_col = [c for c in df_prog.columns if 'Date of Changed' in c or 'Changed User' in c][0]
         withdrawn_col = [c for c in df_prog.columns if 'Withdrawn' in c][0]
+        prog_mob_cols = [c for c in df_prog.columns if 'Mob' in c or 'Phone' in c]
+        prog_mob_col = prog_mob_cols[0] if prog_mob_cols else None
         
         for idx, row in df_prog.iterrows():
             raw_place = str(row[posting_col]).strip()
@@ -141,6 +163,14 @@ for sheet in xl_dist.sheet_names:
             new_user = str(row[new_user_col]).strip() if pd.notnull(row[new_user_col]) else None
             change_dt = pd.to_datetime(row[date_change_col]) if pd.notnull(row[date_change_col]) else None
             withdrawn_dt = pd.to_datetime(row[withdrawn_col]) if pd.notnull(row[withdrawn_col]) else None
+            prog_mob = str(row[prog_mob_col]).strip() if prog_mob_col and pd.notnull(row[prog_mob_col]) else ""
+            if prog_mob.endswith('.0'):
+                prog_mob = prog_mob[:-2]
+            if prog_mob.lower() == 'nan':
+                prog_mob = ""
+                
+            if new_user:
+                anm_mob_lookup[new_user.lower()] = (new_user, prog_mob)
             
             program_changes.append({
                 "subcentre": sub,
@@ -148,7 +178,8 @@ for sheet in xl_dist.sheet_names:
                 "old_user": old_user,
                 "new_user": new_user,
                 "change_date": change_dt,
-                "withdrawn_date": withdrawn_dt
+                "withdrawn_date": withdrawn_dt,
+                "mobile": prog_mob
             })
             
             # Ensure subcentre is in equipped_subcentres
@@ -673,12 +704,97 @@ for s, b in equipped_subcentres.items():
                 anm = r["user_name"]
             break
             
+    # Build structured ANM contact list for this subcentre
+    anm_details_list = []
+    
+    # Check if subcentre is in program changes
+    pc_found = None
+    for pc in program_changes:
+        if pc["subcentre"] == s:
+            pc_found = pc
+            break
+            
+    if pc_found:
+        if pc_found.get("withdrawn_date"):
+            w_date_str = pc_found["withdrawn_date"].strftime('%d-%m-%Y')
+            u_name = pc_found.get("old_user") or anm
+            u_mob = ""
+            if u_name and u_name.lower() in anm_mob_lookup:
+                u_mob = anm_mob_lookup[u_name.lower()][1]
+            anm_details_list.append({
+                "name": u_name,
+                "mobile": u_mob,
+                "status_label": f"Withdrawn on {w_date_str}",
+                "badge_type": "danger",
+                "is_active": False
+            })
+        elif pc_found.get("change_date") and pc_found.get("new_user"):
+            c_date_str = pc_found["change_date"].strftime('%d-%m-%Y')
+            new_u = pc_found["new_user"]
+            new_mob = pc_found.get("mobile") or (anm_mob_lookup.get(new_u.lower(), ("", ""))[1])
+            old_u = pc_found.get("old_user")
+            old_mob = ""
+            if old_u and old_u.lower() in anm_mob_lookup:
+                old_mob = anm_mob_lookup[old_u.lower()][1]
+                
+            # Current ANM
+            anm_details_list.append({
+                "name": new_u,
+                "mobile": new_mob,
+                "status_label": f"Current ANM (Transferred on {c_date_str})",
+                "badge_type": "success",
+                "is_active": True
+            })
+            # If old user was at the SAME subcentre, include as Previous ANM
+            if old_u and user_original_subcentre.get(old_u.lower()) == s:
+                anm_details_list.append({
+                    "name": old_u,
+                    "mobile": old_mob,
+                    "status_label": f"Previous ANM (Active until {c_date_str})",
+                    "badge_type": "warning",
+                    "is_active": False
+                })
+    else:
+        # Check if an old user was transferred OUT of this subcentre (e.g. SHC Magarkhedi)
+        transferred_out_pc = None
+        for pc in program_changes:
+            if pc.get("old_user") and user_original_subcentre.get(pc["old_user"].lower()) == s and pc["subcentre"] != s:
+                transferred_out_pc = pc
+                break
+                
+        if transferred_out_pc and transferred_out_pc.get("change_date"):
+            c_date_str = transferred_out_pc["change_date"].strftime('%d-%m-%Y')
+            u_name = transferred_out_pc["old_user"]
+            u_mob = ""
+            if u_name and u_name.lower() in anm_mob_lookup:
+                u_mob = anm_mob_lookup[u_name.lower()][1]
+            anm_details_list.append({
+                "name": u_name,
+                "mobile": u_mob,
+                "status_label": f"Transferred out on {c_date_str}",
+                "badge_type": "danger",
+                "is_active": False
+            })
+        else:
+            # Standard assigned ANM
+            base_info = base_contacts.get(s, {})
+            u_name = base_info.get("name") or anm
+            u_mob = base_info.get("mobile") or (anm_mob_lookup.get(u_name.lower(), ("", ""))[1] if u_name else "")
+            anm_details_list.append({
+                "name": u_name,
+                "mobile": u_mob,
+                "status_label": "Assigned ANM",
+                "badge_type": "primary",
+                "is_active": True
+            })
+
     # Include lifecycle window metadata if present
     sub_meta = {
         "name": s,
         "block": b,
         "facility": fac,
-        "anm_name": anm
+        "anm_name": anm,
+        "anm_details": anm_details_list
     }
     if s in subcentre_windows:
         win = subcentre_windows[s]

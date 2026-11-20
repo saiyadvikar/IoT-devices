@@ -303,7 +303,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 status_type: s.status_type || null,
                 event_date: s.event_date || null,
                 event_label: s.event_label || null,
-                highlight_red: !!s.highlight_red
+                highlight_red: !!s.highlight_red,
+                anm_details: s.anm_details || []
             };
         });
 
@@ -563,7 +564,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-        if (s.anms && s.anms.length > 0) {
+        if (s.anm_details && s.anm_details.length > 0) {
+            let cardsHtml = `<div style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">`;
+            s.anm_details.forEach(detail => {
+                const badgeClass = detail.badge_type === 'success' ? 'badge-success' :
+                                   detail.badge_type === 'warning' ? 'badge-warning' :
+                                   detail.badge_type === 'danger' ? 'badge-danger' : 'badge-primary';
+                
+                const icon = detail.badge_type === 'success' ? 'fa-check' :
+                             detail.badge_type === 'warning' ? 'fa-clock-rotate-left' :
+                             detail.badge_type === 'danger' ? 'fa-triangle-exclamation' : 'fa-user-check';
+                
+                const phoneHtml = detail.mobile ? `
+                    <a href="tel:${detail.mobile}" style="display: inline-flex; align-items: center; gap: 6px; color: var(--color-primary); font-weight: 700; text-decoration: none; font-size: 0.88rem; background: var(--bg-hover, rgba(99, 102, 241, 0.08)); padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid rgba(99, 102, 241, 0.2); transition: all 0.2s ease;">
+                        <i class="fa-solid fa-phone" style="font-size: 0.8rem;"></i> ${detail.mobile}
+                    </a>
+                ` : `<span style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;"><i class="fa-solid fa-phone-slash"></i> No number available</span>`;
+
+                cardsHtml += `
+                    <div style="background: var(--bg-secondary, rgba(255, 255, 255, 0.04)); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px 14px; display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                            <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-user-nurse" style="color: var(--color-primary);"></i> ${detail.name}
+                            </span>
+                            <span class="badge ${badgeClass}" style="font-size: 0.7rem; padding: 2px 8px; font-weight: 700;">
+                                <i class="fa-solid ${icon}"></i> ${detail.status_label}
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
+                            <span style="font-size: 0.78rem; color: var(--text-secondary); font-weight: 600;">Contact Number:</span>
+                            ${phoneHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            cardsHtml += `</div>`;
+            modalAnmsList.innerHTML = cardsHtml;
+        } else if (s.anms && s.anms.length > 0) {
             let anmHtml = `<ul style="padding-left: 1.2rem; margin-top: 4px;">
                 ${s.anms.map(anm => `<li style="margin-bottom: 2px;">${anm}</li>`).join('')}
             </ul>`;

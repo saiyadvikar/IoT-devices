@@ -1,5 +1,5 @@
 const dashboardData = {
-  "generated_at": "2026-11-20T09:15:54.926367",
+  "generated_at": "2026-11-20T11:19:49.380339",
   "last_updated_date": "20-11-2026",
   "records": [
     {
@@ -72872,6 +72872,15 @@ const dashboardData = {
       "block": "Bhikangaon",
       "facility": "PHC Andad",
       "anm_name": "Reena mujalde",
+      "anm_details": [
+        {
+          "name": "Reena mujalde",
+          "mobile": "9111337728",
+          "status_label": "Withdrawn on 11-07-2026",
+          "badge_type": "danger",
+          "is_active": false
+        }
+      ],
       "active_end": "2026-07-11",
       "is_withdrawn": true,
       "withdrawn_date": "2026-07-11",
@@ -72884,157 +72893,398 @@ const dashboardData = {
       "name": "SHC Anjangaon",
       "block": "Bhikangaon",
       "facility": "PHC Rodiya",
-      "anm_name": "Saroj Chouhan"
+      "anm_name": "Saroj Chouhan",
+      "anm_details": [
+        {
+          "name": "Saroj Chouhan",
+          "mobile": "7987345677",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Bhikangaon B",
       "block": "Bhikangaon",
       "facility": "CHC Bhikangaon",
-      "anm_name": "Jayshri Birle"
+      "anm_name": "Jayshri Birle",
+      "anm_details": [
+        {
+          "name": "Jayshri Birle",
+          "mobile": "7987144228",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Devala",
       "block": "Bhikangaon",
       "facility": "PHC Rodiya",
-      "anm_name": "Sarita Asky"
+      "anm_name": "Sarita Asky",
+      "anm_details": [
+        {
+          "name": "Sarita Asky",
+          "mobile": "7974747480",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Eagriya New",
       "block": "Bhikangaon",
       "facility": "PHC Goridiya",
-      "anm_name": "Anit Kirade"
+      "anm_name": "Anit Kirade",
+      "anm_details": [
+        {
+          "name": "Anit Kirade",
+          "mobile": "6264837273",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Kakadgaon New",
       "block": "Bhikangaon",
       "facility": "PHC Andad",
-      "anm_name": "Rani Jadhaw"
+      "anm_name": "Rani Jadhaw",
+      "anm_details": [
+        {
+          "name": "Rani jadhaw",
+          "mobile": "8435685064",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Mohankhedi",
       "block": "Bhikangaon",
       "facility": "PHC Goridiya",
-      "anm_name": "Manisha Pawar"
+      "anm_name": "Manisha Pawar",
+      "anm_details": [
+        {
+          "name": "Manisha pawar",
+          "mobile": "9826561767",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Nargaon",
       "block": "Bhikangaon",
       "facility": "CHC Bhikangaon",
-      "anm_name": "Kamla Brahmane"
+      "anm_name": "Kamla Brahmane",
+      "anm_details": [
+        {
+          "name": "Kamla Brahmane",
+          "mobile": "9754375047",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Palasi New1",
       "block": "Bhikangaon",
       "facility": "CHC Bhikangaon",
-      "anm_name": "Tara Awase"
+      "anm_name": "Tara Awase",
+      "anm_details": [
+        {
+          "name": "Tara awase",
+          "mobile": "7987500226",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Poi New",
       "block": "Bhikangaon",
       "facility": "PHC Bamnala",
-      "anm_name": "Rajni Palir"
+      "anm_name": "Rajni Palir",
+      "anm_details": [
+        {
+          "name": "Rajni Palir",
+          "mobile": "9009528295",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Pokharabad",
       "block": "Bhikangaon",
       "facility": "PHC Goridiya",
-      "anm_name": "Amrta Kharte"
+      "anm_name": "Amrta Kharte",
+      "anm_details": [
+        {
+          "name": "Amrta Kharte",
+          "mobile": "9575085660",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Shakargaon",
       "block": "Bhikangaon",
       "facility": "CHC Bhikangaon",
-      "anm_name": "Rekha Gaarde"
+      "anm_name": "Rekha Gaarde",
+      "anm_details": [
+        {
+          "name": "Rekha Gaarde",
+          "mobile": "7974955772",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Sirali",
       "block": "Bhikangaon",
       "facility": "PHC Doudwa",
-      "anm_name": "Meena Hirve"
+      "anm_name": "Meena Hirve",
+      "anm_details": [
+        {
+          "name": "Meena hirve",
+          "mobile": "7024096396",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Temala New",
       "block": "Bhikangaon",
       "facility": "PHC Goridiya",
-      "anm_name": "Imla Nargave"
+      "anm_name": "Imla Nargave",
+      "anm_details": [
+        {
+          "name": "Imla Nargave",
+          "mobile": "7879873391",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC AHIR DHAMNOD New",
       "block": "Kasrawad",
       "facility": "PHC MAGARKHEDI",
-      "anm_name": "Nargish Khan"
+      "anm_name": "Nargish Khan",
+      "anm_details": [
+        {
+          "name": "Nargish Khan",
+          "mobile": "7828525471",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Badgao New",
       "block": "Kasrawad",
       "facility": "PHC Satkur",
-      "anm_name": "Komal Khede"
+      "anm_name": "Komal Khede",
+      "anm_details": [
+        {
+          "name": "Komal Khede",
+          "mobile": "8602417749",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Balakwada",
       "block": "Kasrawad",
       "facility": "PHC Balakwada",
-      "anm_name": "Sonakshi Soni"
+      "anm_name": "Sonakshi Soni",
+      "anm_details": [
+        {
+          "name": "Sonakshi soni",
+          "mobile": "7697530658",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Balsamund",
       "block": "Kasrawad",
       "facility": "PHC Balsamud",
-      "anm_name": "Seema Sen"
+      "anm_name": "Seema Sen",
+      "anm_details": [
+        {
+          "name": "Najmeen Pthan",
+          "mobile": "7974200810",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Bamandi",
       "block": "Kasrawad",
       "facility": "PHC Satkur",
-      "anm_name": "Nirmla Leikey"
+      "anm_name": "Nirmla Leikey",
+      "anm_details": [
+        {
+          "name": "Nirmla Leikey",
+          "mobile": "9617589151",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Barslay New",
       "block": "Kasrawad",
       "facility": "PHC Borawan",
-      "anm_name": "Sunita Yadav"
+      "anm_name": "Sunita Yadav",
+      "anm_details": [
+        {
+          "name": "Sunita yadav",
+          "mobile": "9340605900",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Besarkund",
       "block": "Kasrawad",
       "facility": "PHC Balakwada",
-      "anm_name": "Sandhya Sohani"
+      "anm_name": "Sandhya Sohani",
+      "anm_details": [
+        {
+          "name": "Sandhya Sohani",
+          "mobile": "9244824335",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Bhilgaon",
       "block": "Kasrawad",
       "facility": "PHC Satkur",
-      "anm_name": "Mamta Morey"
+      "anm_name": "Mamta Morey",
+      "anm_details": [
+        {
+          "name": "Mamta Morey",
+          "mobile": "8120113710",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Bhoinda",
       "block": "Kasrawad",
       "facility": "PHC MAGARKHEDI",
-      "anm_name": "Durga Prajapat"
+      "anm_name": "Durga Prajapat",
+      "anm_details": [
+        {
+          "name": "Durga Prajapat",
+          "mobile": "8224832645",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Bither",
       "block": "Kasrawad",
       "facility": "PHC Balakwada",
-      "anm_name": "Madhubala Kalme"
+      "anm_name": "Madhubala Kalme",
+      "anm_details": [
+        {
+          "name": "Madhubala kalme",
+          "mobile": "9630399117",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "CHC Kasrawad",
       "block": "Kasrawad",
       "facility": "CHC Kasrawad",
-      "anm_name": "Pinki Badole"
+      "anm_name": "Pinki Badole",
+      "anm_details": [
+        {
+          "name": "Pinki Badole",
+          "mobile": "9617510690",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Choti Kasrawad New",
       "block": "Kasrawad",
       "facility": "PHC Borawan",
-      "anm_name": "Leena Thakur"
+      "anm_name": "Leena Thakur",
+      "anm_details": [
+        {
+          "name": "Leena Thakur",
+          "mobile": "8827259850",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Lohari",
       "block": "Kasrawad",
       "facility": "CHC Kasrawad",
       "anm_name": "Moni Bandod",
+      "anm_details": [
+        {
+          "name": "Moni Bandod",
+          "mobile": "8120735975",
+          "status_label": "Current ANM (Transferred on 18-11-2026)",
+          "badge_type": "success",
+          "is_active": true
+        },
+        {
+          "name": "Ragini Andelkar",
+          "mobile": "8817827143",
+          "status_label": "Previous ANM (Active until 18-11-2026)",
+          "badge_type": "warning",
+          "is_active": false
+        }
+      ],
       "status_type": "transferred",
       "event_date": "2026-11-18",
       "event_label": "Transferred on 18-11-2026",
@@ -73045,6 +73295,15 @@ const dashboardData = {
       "block": "Kasrawad",
       "facility": "PHC MAGARKHEDI",
       "anm_name": "Anita sharma",
+      "anm_details": [
+        {
+          "name": "Anita sharma",
+          "mobile": "9826964492",
+          "status_label": "Transferred out on 03-10-2026",
+          "badge_type": "danger",
+          "is_active": false
+        }
+      ],
       "active_end": "2026-10-02",
       "status_type": "transferred",
       "event_date": "2026-10-03",
@@ -73055,115 +73314,286 @@ const dashboardData = {
       "name": "SHC Maltar",
       "block": "Kasrawad",
       "facility": "PHC Balakwada",
-      "anm_name": "Ranjana Solanki"
+      "anm_name": "Ranjana Solanki",
+      "anm_details": [
+        {
+          "name": "Ranyanel",
+          "mobile": "9575014610",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Mogawan New",
       "block": "Kasrawad",
       "facility": "PHC Khamkheda",
-      "anm_name": "Madhuri Chouhan"
+      "anm_name": "Madhuri Chouhan",
+      "anm_details": [
+        {
+          "name": "Madhuri Chouhan",
+          "mobile": "9009945616",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Dalki",
       "block": "Segaon",
       "facility": "PHC Shrikhandi",
-      "anm_name": "Anita Mukati"
+      "anm_name": "Anita Mukati",
+      "anm_details": [
+        {
+          "name": "Anita mukati",
+          "mobile": "9644903100",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Baneehar New",
       "block": "Segaon",
       "facility": "PHC Keli",
-      "anm_name": "Laxmi Mandloi"
+      "anm_name": "Laxmi Mandloi",
+      "anm_details": [
+        {
+          "name": "Laxmi mandloi",
+          "mobile": "8966873473",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Bhadwali",
       "block": "Segaon",
       "facility": "PHC Shrikhandi",
-      "anm_name": "Radha Taware"
+      "anm_name": "Radha Taware",
+      "anm_details": [
+        {
+          "name": "Radha Taware",
+          "mobile": "7064435064",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Gandhawad",
       "block": "Segaon",
       "facility": "CHC Segaon",
-      "anm_name": "Savita Khode"
+      "anm_name": "Savita Khode",
+      "anm_details": [
+        {
+          "name": "Savita khode",
+          "mobile": "746014288",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Jamothi New",
       "block": "Segaon",
       "facility": "PHC Shrikhandi",
-      "anm_name": "Sangeeta Saite"
+      "anm_name": "Sangeeta Saite",
+      "anm_details": [
+        {
+          "name": "Sangeeta Saite",
+          "mobile": "8889606068",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Dasnawal",
       "block": "Segaon",
       "facility": "CHC Segaon",
-      "anm_name": "Yashoda Gole"
+      "anm_name": "Yashoda Gole",
+      "anm_details": [
+        {
+          "name": "Yashoda Gole",
+          "mobile": "9977072775",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Jojalwadi",
       "block": "Segaon",
       "facility": "PHC Keli",
-      "anm_name": "Maya Ruwaya"
+      "anm_name": "Maya Ruwaya",
+      "anm_details": [
+        {
+          "name": "Maya Ruwaya",
+          "mobile": "9926686386",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Keli",
       "block": "Segaon",
       "facility": "PHC Keli",
-      "anm_name": "Pinkiy Chouhan"
+      "anm_name": "Pinkiy Chouhan",
+      "anm_details": [
+        {
+          "name": "Pinkiy Chouhan",
+          "mobile": "9465738460",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Khamkheda",
       "block": "Segaon",
       "facility": "PHC Shrikhandi",
-      "anm_name": "Anita Chouhan"
+      "anm_name": "Anita Chouhan",
+      "anm_details": [
+        {
+          "name": "Anita Chouhan",
+          "mobile": "8435271227",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Panali",
       "block": "Segaon",
       "facility": "PHC Shrikhandi",
-      "anm_name": "Shashikala Chouhan"
+      "anm_name": "Shashikala Chouhan",
+      "anm_details": [
+        {
+          "name": "Shashikala Chouhan",
+          "mobile": "7987650042",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Panwada",
       "block": "Segaon",
       "facility": "PHC Shrikhandi",
-      "anm_name": "Preeti Patidar"
+      "anm_name": "Preeti Patidar",
+      "anm_details": [
+        {
+          "name": "Preeti Patidar",
+          "mobile": "7987650284",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Rasgaon",
       "block": "Segaon",
       "facility": "CHC Segaon",
-      "anm_name": "Ashika Chouhan"
+      "anm_name": "Ashika Chouhan",
+      "anm_details": [
+        {
+          "name": "Ashika Chouhan",
+          "mobile": "9753750002",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Sangvi",
       "block": "Segaon",
       "facility": "PHC Shrikhandi",
-      "anm_name": "Barkha Jamele"
+      "anm_name": "Barkha Jamele",
+      "anm_details": [
+        {
+          "name": "Barkha jamele",
+          "mobile": "7067585250",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Segaon (B)",
       "block": "Segaon",
       "facility": "CHC Segaon",
-      "anm_name": "Manisha Mandloi"
+      "anm_name": "Manisha Mandloi",
+      "anm_details": [
+        {
+          "name": "Manisha mandloi",
+          "mobile": "8120509105",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Shrikhandi",
       "block": "Segaon",
       "facility": "PHC Shrikhandi",
-      "anm_name": "Sarda Dawar"
+      "anm_name": "Sarda Dawar",
+      "anm_details": [
+        {
+          "name": "Sarda dawar",
+          "mobile": "9165927372",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Talakpura",
       "block": "Segaon",
       "facility": "CHC Segaon",
-      "anm_name": "Rihana Shekh"
+      "anm_name": "Rihana Shekh",
+      "anm_details": [
+        {
+          "name": "Rihana Shekh",
+          "mobile": "9827037483",
+          "status_label": "Assigned ANM",
+          "badge_type": "primary",
+          "is_active": true
+        }
+      ]
     },
     {
       "name": "SHC Regwa",
       "block": "Kasrawad",
       "facility": "PHC Satkur",
       "anm_name": "NIMIT VERMA",
+      "anm_details": [
+        {
+          "name": "NIMIT VERMA",
+          "mobile": "9522745763",
+          "status_label": "Current ANM (Transferred on 03-10-2026)",
+          "badge_type": "success",
+          "is_active": true
+        }
+      ],
       "active_start": "2026-10-03",
       "status_type": "transferred",
       "event_date": "2026-10-03",
